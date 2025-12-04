@@ -1,0 +1,353 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星際維修管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00FFFF',
+                        secondary: '#0080FF',
+                        accent: '#FF6B35',
+                        'space-dark': '#0A0A0A',
+                        'space-blue': '#1E2A3A'
+                    },
+                    fontFamily: {
+                        'mono': ['Courier New', 'monospace']
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'flicker': 'flicker 3s linear infinite'
+                    },
+                    keyframes: {
+                        flicker: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.8 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0A0A0A 0%, #1E2A3A 50%, #0A0A0A 100%);
+            background-attachment: fixed;
+        }
+        .sci-fi-border {
+            position: relative;
+            background: linear-gradient(45deg, rgba(0,255,255,0.1) 0%, rgba(0,128,255,0.1) 100%);
+            border: 2px solid transparent;
+        }
+        .sci-fi-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00FFFF, #0080FF, #00FFFF);
+            border-radius: inherit;
+            z-index: -1;
+        }
+        .hologram-text {
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+        }
+        .scan-line {
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.8), transparent);
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
+    <!-- Audio Element -->
+    <audio id="alarmAudio" loop="">
+        <source src="https://pfst.cf2.poecdn.net/base/audio/a6c86d22395e722512396a654f8d21d350389b785daac83b8ceef0e4fa994c37" type="audio/mpeg">
+    </audio>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Start Page -->
+        <div id="startPage" class="min-h-screen flex items-center justify-center">
+            <div class="text-center relative overflow-hidden">
+                <div class="scan-line absolute top-0 left-0 w-full h-1 z-10"></div>
+                <h1 class="text-5xl md:text-7xl font-bold font-mono text-primary mb-8 hologram-text animate-pulse-glow">
+                    🚀 星際維修管理系統
+                </h1>
+                <p class="text-primary/80 text-xl font-mono animate-flicker mb-8">[ STARSHIP MAINTENANCE CONTROL ]</p>
+                <div class="text-secondary/60 text-sm font-mono mb-12">
+                    &gt;&gt; 系統待機中 &lt;&lt; 等待啟動指令 &lt;&lt;
+                </div>
+                
+                <button onclick="startSystem()" class="sci-fi-border relative bg-space-dark/80 hover:bg-space-dark text-primary font-mono font-bold py-6 px-12 rounded-lg transition-all duration-300 transform hover:scale-110 shadow-2xl group overflow-hidden text-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 hologram-text">
+                        ▶ 啟動系統
+                    </div>
+                    <div class="text-xs text-primary/60 mt-2">[SYSTEM_INITIALIZATION]</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main System Page -->
+        <div id="mainSystem" class="hidden">
+            <!-- Header -->
+            <div class="text-center mb-8 relative overflow-hidden">
+                <div class="scan-line absolute top-0 left-0 w-full h-1 z-10"></div>
+                <h1 class="text-4xl md:text-6xl font-bold font-mono text-primary mb-4 hologram-text animate-pulse-glow">
+                    🚀 星際維修管理系統
+                </h1>
+                <p class="text-primary/80 text-lg font-mono animate-flicker">[ STARSHIP MAINTENANCE CONTROL ]</p>
+                <div class="text-red-400/80 text-sm font-mono mt-2 animate-flicker">
+                    ⚠️ 警報啟動中 ⚠️ 系統檢測到異常狀況 ⚠️
+                </div>
+            </div>
+
+            <!-- Main Menu -->
+        <div id="mainMenu" class="space-y-4">
+            <!-- Back to Start Button - Only visible after alarm has been stopped -->
+            <div id="backToStartButton" class="text-right mb-4 hidden">
+                <button onclick="backToStart()" class="sci-fi-border bg-space-dark/60 hover:bg-space-dark/80 text-primary font-mono text-sm py-2 px-4 rounded transition-all duration-300 hologram-text">
+                    ◄ 回到最初
+                </button>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-3">
+                <button onclick="showSection('maintenance')" class="sci-fi-border relative bg-space-dark/80 hover:bg-space-dark text-primary font-mono font-bold py-8 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-2xl group overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="text-2xl mb-3 hologram-text">⚡</div>
+                        <div class="text-lg hologram-text">維修指令</div>
+                        <div class="text-xs text-primary/60 mt-1">[REPAIR_PROTOCOLS]</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('floorplan')" class="sci-fi-border relative bg-space-dark/80 hover:bg-space-dark text-primary font-mono font-bold py-8 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-2xl group overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="text-2xl mb-3 hologram-text">🛸</div>
+                        <div class="text-lg hologram-text">平面圖</div>
+                        <div class="text-xs text-primary/60 mt-1">[DECK_SCHEMATICS]</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('leveldiagram')" class="sci-fi-border relative bg-space-dark/80 hover:bg-space-dark text-primary font-mono font-bold py-8 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-2xl group overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="text-2xl mb-3 hologram-text">📡</div>
+                        <div class="text-lg hologram-text">等級圖</div>
+                        <div class="text-xs text-primary/60 mt-1">[SYSTEM_STATUS]</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Maintenance Instructions Section -->
+        <div id="maintenanceSection" class="hidden">
+            <div class="sci-fi-border bg-space-dark/90 rounded-lg p-6 shadow-2xl relative overflow-hidden">
+                <div class="scan-line absolute top-0 left-0 w-full h-1 z-10"></div>
+                <h2 class="text-3xl font-bold font-mono mb-4 text-primary hologram-text">⚡ 維修指令</h2>
+                <p class="text-sm text-primary/60 font-mono mb-6">[ HOST_REFERENCE_ONLY ]</p>
+                
+                <div class="space-y-6">
+                    <div class="sci-fi-border bg-red-900/20 p-4 rounded border-l-4 border-red-400">
+                        <h3 class="text-xl font-mono font-semibold mb-3 text-red-400 hologram-text flex items-center">
+                            ⚠️ 1. 電力室：
+                        </h3>
+                        <p class="text-primary/80 font-mono text-sm leading-relaxed">修復受損的供電系統。</p>
+                        <div class="text-red-400/60 text-xs font-mono mt-2">[PRIORITY: CRITICAL]</div>
+                    </div>
+                    
+                    <div class="sci-fi-border bg-orange-900/20 p-4 rounded border-l-4 border-orange-400">
+                        <h3 class="text-xl font-mono font-semibold mb-3 text-orange-400 hologram-text flex items-center">
+                            ☢️ 2. 核動力反應堆：
+                        </h3>
+                        <p class="text-primary/80 font-mono text-sm leading-relaxed">外機房供電不足，內機房被偵測出有中度輻射洩漏情況，現被安全銷定，維修人員請先啟動降溫程序方可安全重啟。</p>
+                        <div class="text-orange-400/60 text-xs font-mono mt-2">[RADIATION_LEVEL: MODERATE | STATUS: LOCKED]</div>
+                    </div>
+                    
+                    <div class="sci-fi-border bg-blue-900/20 p-4 rounded border-l-4 border-blue-400">
+                        <h3 class="text-xl font-mono font-semibold mb-3 text-blue-400 hologram-text flex items-center">
+                            ❄️ 3. 反應堆冷卻裝置：
+                        </h3>
+                        <p class="text-primary/80 font-mono text-sm leading-relaxed">機房供電不足，冷凝液存量低於所需水平。</p>
+                        <div class="text-blue-400/60 text-xs font-mono mt-2">[COOLANT_LEVEL: BELOW_THRESHOLD]</div>
+                    </div>
+                    
+                    <div class="sci-fi-border bg-green-900/20 p-4 rounded border-l-4 border-green-400">
+                        <h3 class="text-xl font-mono font-semibold mb-3 text-green-400 hologram-text flex items-center">
+                            🚨 4. 艦橋：
+                        </h3>
+                        <p class="text-primary/80 font-mono text-sm leading-relaxed">用船員識別卡解鎖進入並輸入「艦長密碼」，啟動「緊急脫離程序」。</p>
+                        <div class="text-green-400/60 text-xs font-mono mt-2">[ACCESS_REQUIRED: CAPTAIN_CLEARANCE]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floor Plan Section -->
+        <div id="floorplanSection" class="hidden">
+            <div class="sci-fi-border bg-space-dark/90 rounded-lg p-6 shadow-2xl relative overflow-hidden">
+                <div class="scan-line absolute top-0 left-0 w-full h-1 z-10"></div>
+                <h2 class="text-3xl font-bold font-mono mb-4 text-primary hologram-text">🛸 平面圖</h2>
+                <p class="text-sm text-primary/60 font-mono mb-6">[ DECK_SCHEMATICS_DISPLAY ]</p>
+                <div class="text-center">
+                    <div class="sci-fi-border bg-space-blue/20 p-4 rounded-lg inline-block">
+                        <img src="https://pfst.cf2.poecdn.net/base/image/82e6a47b3dde99cf80b8f740b3262baf223c99034b205a3d786c5037eb60bff7?w=1414&amp;h=2000" alt="星艦平面圖" class="max-w-full h-auto rounded-lg shadow-2xl mx-auto border border-primary/30">
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="text-primary/60 text-xs font-mono animate-flicker">
+                        [ SCANNING... ] &gt;&gt; STRUCTURAL_INTEGRITY: 67% &lt;&lt; [ ALERT_ZONES_DETECTED ]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Diagram Section -->
+        <div id="leveldiagramSection" class="hidden">
+            <div class="sci-fi-border bg-space-dark/90 rounded-lg p-6 shadow-2xl relative overflow-hidden">
+                <div class="scan-line absolute top-0 left-0 w-full h-1 z-10"></div>
+                <h2 class="text-3xl font-bold font-mono mb-4 text-primary hologram-text">📡 等級圖</h2>
+                <p class="text-sm text-primary/60 font-mono mb-6">[ SYSTEM_STATUS_OVERVIEW ]</p>
+                <div class="text-center">
+                    <div class="sci-fi-border bg-space-blue/20 p-4 rounded-lg inline-block">
+                        <img src="https://pfst.cf2.poecdn.net/base/image/5842bc21fa750f834a5a2f3b3589b7fd5956ec1f5bc64ab8f9002caca2427f4c?w=731&amp;h=640" alt="系統等級狀態圖" class="max-w-full h-auto rounded-lg shadow-2xl mx-auto border border-primary/30">
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="text-primary/60 text-xs font-mono animate-flicker">
+                        [ MONITORING... ] &gt;&gt; CREW_EFFICIENCY: VARIABLE &lt;&lt; [ STATUS_UPDATING ]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Back Button -->
+            <div id="backButton" class="hidden mt-8 text-center">
+                <button onclick="showMainMenu()" class="sci-fi-border bg-space-dark/80 hover:bg-space-dark text-primary font-mono font-semibold py-3 px-6 rounded-lg transition-all duration-300 hologram-text">
+                    ◄ 返回主選單
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        let alarmAudio = null;
+        let alarmStopped = false; // Track if alarm has been stopped
+
+        function startSystem() {
+            // Hide start page
+            document.getElementById('startPage').classList.add('hidden');
+            
+            // Show main system
+            document.getElementById('mainSystem').classList.remove('hidden');
+            
+            // Reset alarm stopped state
+            alarmStopped = false;
+            document.getElementById('backToStartButton').classList.add('hidden');
+            
+            // Start alarm audio
+            alarmAudio = document.getElementById('alarmAudio');
+            alarmAudio.volume = 0.7; // Set volume to 70%
+            
+            // Play audio with user interaction (required by browsers)
+            alarmAudio.play().catch(function(error) {
+                console.log("Audio autoplay was prevented:", error);
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showSection(sectionName) {
+            // Stop alarm if accessing maintenance instructions
+            if (sectionName === 'maintenance' && alarmAudio) {
+                alarmAudio.pause();
+                alarmAudio.currentTime = 0;
+                alarmStopped = true; // Mark that alarm has been stopped
+            }
+            
+            // Hide main menu
+            document.getElementById('mainMenu').classList.add('hidden');
+            
+            // Hide all sections
+            document.getElementById('maintenanceSection').classList.add('hidden');
+            document.getElementById('floorplanSection').classList.add('hidden');
+            document.getElementById('leveldiagramSection').classList.add('hidden');
+            
+            // Show selected section
+            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            
+            // Show back button
+            document.getElementById('backButton').classList.remove('hidden');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showMainMenu() {
+            // Show main menu
+            document.getElementById('mainMenu').classList.remove('hidden');
+            
+            // Show "回到最初" button only if alarm has been stopped
+            if (alarmStopped) {
+                document.getElementById('backToStartButton').classList.remove('hidden');
+            }
+            
+            // Hide all sections
+            document.getElementById('maintenanceSection').classList.add('hidden');
+            document.getElementById('floorplanSection').classList.add('hidden');
+            document.getElementById('leveldiagramSection').classList.add('hidden');
+            
+            // Hide back button
+            document.getElementById('backButton').classList.add('hidden');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function backToStart() {
+            // Stop alarm audio if playing
+            if (alarmAudio) {
+                alarmAudio.pause();
+                alarmAudio.currentTime = 0;
+            }
+            
+            // Hide main system
+            document.getElementById('mainSystem').classList.add('hidden');
+            
+            // Show start page
+            document.getElementById('startPage').classList.remove('hidden');
+            
+            // Reset all sections to hidden
+            document.getElementById('mainMenu').classList.remove('hidden');
+            document.getElementById('maintenanceSection').classList.add('hidden');
+            document.getElementById('floorplanSection').classList.add('hidden');
+            document.getElementById('leveldiagramSection').classList.add('hidden');
+            document.getElementById('backButton').classList.add('hidden');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+
+</body></html>
